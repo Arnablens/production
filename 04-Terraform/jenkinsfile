@@ -1,0 +1,68 @@
+node {
+ try  {
+ notify('Job Started') 
+
+     
+  stage('Git-Checkout') {
+   git 'https://github.com/Arnablens/production.git'
+  }
+    
+ def project_path="ansible"
+ 
+ dir(project_path) {
+
+
+stage('create artifact folder to store artifact'){
+    sh label: '', script: "mkdir warstorage"
+    }
+    
+
+
+ stage('Jfrog Artifactory download'){
+    def server= Artifactory.server 'Artifactory'
+    def downloadSpec = """{
+    "files": [
+    {
+      "pattern": "bikes/*.war",
+      "target": "/root/.jenkins/workspace/production/ansible/warstorage/"
+      
+    }
+    ]
+    }"""
+    server.download(downloadSpec)  
+}    
+ 
+
+stage('Geting Ready For Ansible') {
+  sh label: 'Jenkins', script: "echo '<h1> TASK BUILD ID: ${env.BUILD_DISPLAY_NAME}</h1>' > index.html"
+} 
+
+stage('Prod Deployment on AWS'){
+  sh label: '', script: 'ansible-playbook -i /root/.jenkins/workspace/infrastructure/infrastructure/jenkins-ci.ini -u ubuntu --key /root/.ssh/mydevops-aws.pem
+web-playbook.yaml'
+     } 
+
+
+
+ }
+
+
+
+notify('Job Completed')   
+} catch (err) {
+  notify("Error ${err}")
+  currentBuild.result = 'FAILURE'
+}
+}
+
+
+
+def notify(status){
+    emailext (
+	to: "arnablens@gmail.com",
+	subject: "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+	 body: """<p>${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+	<p>Check console output at <a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a></p>""",
+		)
+	}
+
