@@ -9,6 +9,6 @@
     command: rm -rf {{ remove_root }}
     
   - name: Copy bikes Project War Files
-    copy: src=warstorage/{{ artifact }} dest={{ tomcat_path }}/webapps/ROOT.war mode=0644
+    copy: src=/root/.jenkins/workspace/production/ansible/warstorage/{{ artifact }} dest={{ tomcat_path }}/webapps/ROOT.war mode=0644
     notify: 
     - Restart Tomcat
