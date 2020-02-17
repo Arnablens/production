@@ -38,8 +38,7 @@ stage('Geting Ready For Ansible') {
 } 
 
 stage('Prod Deployment on AWS'){
-  sh label: '', script: 'ansible-playbook -i /root/.jenkins/workspace/infrastructure/infrastructure/jenkins-ci.ini -u ubuntu --key /root/.ssh/mydevops-aws.pem
-web-playbook.yaml'
+  sh label: '', script: 'ansible-playbook -i /root/.jenkins/workspace/infrastructure/infrastructure/jenkins-ci.ini -u ubuntu --key /root/.ssh/mydevops-aws.pem web-playbook.yaml'
      } 
 
 
